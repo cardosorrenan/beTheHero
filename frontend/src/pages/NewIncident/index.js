@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './styles.css'
 import LogoImg from '../../assets/logo.svg'
-import { Link } from 'react-router-dom' 
+import { Link, useHistory } from 'react-router-dom' 
 import { FiArrowLeft } from 'react-icons/fi'
+import api from '../../services/api'
+
 
 export default function NewIncident() {
+
+  const [ title, setTitle ] = useState('');
+  const [ description, setDescription ] = useState('');
+  const [ value, setValue ] = useState('');
+  const history = useHistory();
+  const ongId = localStorage.getItem('ongId');
+
+  async function handleNewIncident (e) {
+    e.preventDefault();
+    try {
+      await api.post('incidents', { title, description, value }, {
+        headers: {
+          Authorization: ongId
+        }
+      })
+      history.push('/profile');
+    } catch (err) {
+      alert(`Erro no cadastro de caso: ${err}`)
+    }
+  }
+
   return (
     <div className="new-incident-container">
       <div className="content">
@@ -17,13 +40,26 @@ export default function NewIncident() {
             Voltar para casos
           </Link>
         </section>
-        <form action="">
-          <input placeholder="Título do caso"/>
-          <textarea placeholder="Descrição"/>
-          <input placeholder="Valor em reais"/>
-          <Link className="back-link" to="/profile">
-            <button className="button" type="submit">Cadastrar</button>
-          </Link>
+        <form onSubmit={handleNewIncident}>
+          <input
+            placeholder="Título do caso"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+          <textarea
+            placeholder="Descrição"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+          <input
+            placeholder="Valor em reais"
+            value={value}
+            onChange={e => setValue(e.target.value)}
+          />
+
+          <button className="button" type="submit">
+            Cadastrar
+          </button>
         </form>
       </div>
     </div>
